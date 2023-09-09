@@ -1,0 +1,152 @@
+Select Statement with existing datatypes:
+
+DECLARE
+  v_name   VARCHAR2(50);
+  v_salary employees.salary%type;
+BEGIN
+  SELECT first_name ||' '|| last_name, salary 
+  INTO   v_name, v_salary  
+  FROM   employees 
+  WHERE  employee_id = 130;
+  dbms_output.put_line('The salary of '|| v_name || ' is : '|| v_salary);
+END;
+----------------------------------------------------------------------------------------------
+
+DML OPERATIONS:
+
+CREATE TABLE employees_copy 
+AS SELECT * FROM employees;
+
+DECLARE
+  v_employee_id     PLS_INTEGER := 0;
+  v_salary_increase NUMBER      := 400;
+BEGIN
+  FOR i IN 217..226 LOOP
+    -- INSERT INTO employees_copy 
+    -- (employee_id, first_name, last_name, email, hire_date, job_id, salary)
+    -- VALUES
+    -- (i, 'employee#'||i,'temp_emp','abc@xmail.com',sysdate,'IT_PROG',1000);
+    -- UPDATE employees_copy 
+    -- SET    salary = salary + v_salary_increase
+    -- WHERE  employee_id = i;
+    DELETE FROM employees_copy
+    WHERE employee_id = i;
+  END LOOP;
+END; 
+------------------------------------------------------------------------------------------------
+
+SEQUENCE OPERATIONS:
+
+
+CREATE SEQUENCE employee_id_seq 
+START WITH 100
+INCREMENT BY 1;
+ 
+
+BEGIN
+  FOR i IN 1..10 LOOP
+    INSERT INTO employees_copy 
+      (employee_id,first_name,last_name,email,hire_date,job_id,salary)
+    VALUES 
+      (employee_id_seq.nextval,'employee#'||employee_id_seq.nextval,'temp_emp','abc@xmail.com',sysdate,'IT_PROG',1000);
+  END LOOP;
+END; 
+--------------------------------------------------------------------------------------------------
+ANOTHER METHOD:
+
+BEGIN
+  dbms_output.put_line(employee_id_seq.nextval);
+END;
+ ------------------------------------SECOND METHOD-----------------------------------
+BEGIN
+  dbms_output.put_line(employee_id_seq.currval);
+END;
+
+---------------------------------------------------------------------------------------------------
+
+RECORDS:
+
+DECLARE
+  r_emp employees%rowtype;
+BEGIN
+  SELECT * INTO r_emp 
+  FROM   employees 
+  WHERE  employee_id = '101';
+  --r_emp.salary := 2000;
+  dbms_output.put_line(r_emp.first_name || ' '                ||
+                       r_emp.last_name  || ' earns '          ||
+                       r_emp.salary     || ' and hired at : ' || 
+                       r_emp.hire_date);
+END;
+-----------------------------------------------------------------------------------------------------
+
+DML WITH RECORDS:
+
+CREATE TABLE retired_employees 
+AS SELECT * FROM employees WHERE 1=2;
+ 
+SELECT * FROM retired_employees;
+/
+ 
+DECLARE
+    r_emp employees%rowtype;
+BEGIN
+    SELECT * 
+    INTO   r_emp 
+    FROM   employees 
+    WHERE  employee_id = 104;
+    
+    r_emp.salary         := 0;
+    r_emp.commission_pct := 0;
+    
+    INSERT INTO retired_employees VALUES r_emp;
+END;
+------------------------------------------------------------------------------------------------------
+
+
+CURSOR:
+
+declare
+  cursor c_emps is select first_name,last_name from employees;
+  v_first_name employees.first_name%type;
+  v_last_name employees.last_name%type;
+begin
+  open c_emps;
+  fetch c_emps into v_first_name,v_last_name;
+  fetch c_emps into v_first_name,v_last_name;
+  fetch c_emps into v_first_name,v_last_name;
+  dbms_output.put_line(v_first_name|| ' ' || v_last_name);
+  fetch c_emps into v_first_name,v_last_name;
+  dbms_output.put_line(v_first_name|| ' ' || v_last_name);
+  close c_emps;
+end;
+-------------------------------------------------------------------------------------------------------
+
+CURSOR WITH RECORD:
+
+declare
+  cursor c_emps is select first_name,last_name from employees;
+  v_emp c_emps%rowtype;
+begin
+  open c_emps;
+  fetch c_emps into v_emp.first_name,v_emp.last_name;
+  dbms_output.put_line(v_emp.first_name|| ' ' || v_emp.last_name);
+  close c_emps;
+end;
+--------------------------------------------------------------------------------------------------------
+
+LOOPING WITH CURSOR:
+
+declare
+  cursor c_emps is select * from employees where department_id = 30;
+  v_emps c_emps%rowtype;
+begin
+  open c_emps;
+  loop
+    fetch c_emps into v_emps;
+    dbms_output.put_line(v_emps.employee_id|| ' ' ||v_emps.first_name|| ' ' ||v_emps.last_name);
+  end loop;
+  close c_emps;
+end; 
+---------------------------------------------------------------------------------------------------------
+
